@@ -3,6 +3,7 @@
 #include "ServerConnection.hpp"
 #include "ServerStruct.hpp"
 #include "fileHandler.hpp"
+#include "signals.hpp"
 #include <iostream>
 #include <memory>
 
@@ -48,16 +49,12 @@ int main(int argc, char **argv) {
 
   if (argc != 2)
     error_exit(1);
+  volatile sig_atomic_t globalSignalReceived = 0;
+  initSignals();
   parse(&parser, &server_structs, &buffer, argv);
   std::cout << std::endl << std::endl;
   for (const auto &server : server_structs)
     SS->setUpServerConnection(server);
   CC.setUpClientConnection();
   delete buffer;
-
-  // Log logger;
-  // for (int i = 0; i < 10; i++)
-  // 	logger.logAccess("127.0.0.1", "GET /index.html HTTP/1.1", 200, 612, "-",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
-  // Gecko) Chrome/91.0.4472.124 Safari/537.36" );
 }
