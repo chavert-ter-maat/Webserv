@@ -5,7 +5,7 @@ ServerConnection::ServerConnection() {}
 
 ServerConnection::~ServerConnection() {
   for (size_t i = 0; i < _connectedServers.size(); i++) {
-    logServerConnection("Closing server socket", _connectedServers[i].serverID,
+    logServerConnection("Closing server", _connectedServers[i].serverID,
                         _connectedServers[i].serverFD,
                         _connectedServers[i].serverPort);
   }
@@ -28,7 +28,7 @@ void ServerConnection::initServerInfo(ServerStruct serverStruct,
 void ServerConnection::createServerSocket(ServerInfo &info) {
   info.serverFD = socket(AF_INET, SOCK_STREAM, 0);
   if (info.serverFD == -1)
-    logServerError("Failed to create server socket", info.serverID,
+    logServerError("Failed to create server", info.serverID,
                    info.serverPort);
 }
 
@@ -69,7 +69,7 @@ void ServerConnection::setUpServerConnection(ServerStruct serverStruct) {
       bindServerSocket(info);
       listenIncomingConnections(info);
       _connectedServers.push_back(info);
-      logServerConnection("Server socket created", info.serverID, info.serverFD,
+      logServerConnection("Server created", info.serverID, info.serverFD,
                           info.serverPort);
     } else {
       logServerError("Invalid port number", serverStruct.id, atoi(it->c_str()));

@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <vector>
+#include <crt_externs.h>
+#include <stdlib.h>
 
 // REFERENCE :( chapter 4:
 // http://www.faqs.org/rfcs/rfc3875.html
@@ -15,6 +17,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <unistd.h>
 
 const std::string CGI_DIR = "/var/www/cgi-bin";
 constexpr size_t BUFF_SIZE = 1024;
@@ -46,6 +49,7 @@ std::string cgi::executeCGI(const std::string &path, const std::string &args,
   if (args.empty())
     ;
   std::vector<char *> envpp_new;
+  extern char **environ;
   CgiParsing vars(_request->get_headers(), environ, _request, path,
                   interpreter); // parses all the magic
 

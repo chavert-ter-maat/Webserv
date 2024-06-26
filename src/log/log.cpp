@@ -100,7 +100,7 @@ void Log::logServerConnection(const std::string &message,
                               int port) {
   if (_logFile.is_open()) {
     _logFile << getTimeStamp() << " [info]  " << message << " " << serverName
-             << "on socket " << socket << " is now listening on port " << port
+             << "on socket " << socket << " listening on port " << port
              << std::endl;
     _logFile.flush();
   } else {
