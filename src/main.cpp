@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
 
   if (argc != 2)
     error_exit(1);
-  volatile sig_atomic_t globalSignalReceived = 0;
   initSignals();
   parse(&parser, &server_structs, &buffer, argv);
   std::cout << std::endl << std::endl;

@@ -3,6 +3,6 @@
 #include <csignal>
 #include <iostream>
 
-extern volatile sig_atomic_t globalSignalReceived = 0;
+extern volatile	sig_atomic_t globalSignalReceived;
 
-void    initSignals();
+void	initSignals();
