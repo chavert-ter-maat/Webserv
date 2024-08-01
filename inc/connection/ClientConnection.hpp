@@ -22,26 +22,26 @@
 #define BUFFSIZE 4096
 
 struct ConnectionInfo {
-    int clientFD;
-    char clientIP[INET_ADDRSTRLEN];
-    int port;
-    std::shared_ptr<Request> request;
-    std::shared_ptr<Response> response;
-    long int timeOut;
-    long int lastRequestTime;
-    std::string receiveStr;
-    std::string responseStr;
-    int sendStatus;
-    int totalBytesSent;
-    int bytesToSend;
-    pollfd pfd;
+    int 						clientFD;
+    char						clientIP[INET_ADDRSTRLEN];
+    int 						port;
+    std::shared_ptr<Request>	request;
+    std::shared_ptr<Response>	response;
+    long int 					timeOut;
+    long int 					lastRequestTime;
+    std::string 				receiveStr;
+    std::string 				responseStr;
+    int 						sendStatus;
+    int 						totalBytesSent;
+    int 						bytesToSend;
+    pollfd						pfd;
 };
 
 class ClientConnection {
 private:
-    std::shared_ptr<ServerConnection> _ptrServerConnection;
-    std::map<int, ConnectionInfo> _connectionInfo;
-	Log _log;
+    std::shared_ptr<ServerConnection>	_ptrServerConnection;
+    std::map<int, ConnectionInfo>		_connectionInfo;
+	Log									_log;
 
 public:
     ClientConnection();
