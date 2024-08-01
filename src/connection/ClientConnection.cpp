@@ -29,7 +29,7 @@ void ClientConnection::handlePollOutEvent(int clientFD, std::list<ServerStruct> 
     sendData(clientFD);
 }
 
-bool ClientConnection::initializeRequest(int clientFD) 
+bool ClientConnection::initRequest(int clientFD) 
 {
     auto& client = _connectionInfo[clientFD];
     time_t currentTime;
@@ -37,9 +37,9 @@ bool ClientConnection::initializeRequest(int clientFD)
     size_t headerEnd = client.receiveStr.find(CRLFCRLF);
 
     if (headerEnd != std::string::npos) {
-        client.request = std::make_shared<Request>(client.receiveStr.substr(0, headerEnd + 4));
-        if (headerEnd + 4 < client.receiveStr.length()) {
-            client.request->appendToBody(client.receiveStr.substr(headerEnd + 4));
+        client.request = std::make_shared<Request>(client.receiveStr.substr(0, headerEnd + strlen(CRLFCRLF)));
+        if (headerEnd + strlen(CRLFCRLF) < client.receiveStr.length()) {
+            client.request->appendToBody(client.receiveStr.substr(headerEnd + strlen(CRLFCRLF)));
         }
         client.receiveStr.clear();
         client.lastRequestTime = currentTime;
@@ -116,7 +116,7 @@ void ClientConnection::handlePollInEvent(int clientFD)
     receiveData(clientFD);
     auto& client = _connectionInfo[clientFD];
     if (!client.request) {
-        if (!initializeRequest(clientFD))
+        if (!initRequest(clientFD))
             return;
     } 
     else {
@@ -128,7 +128,7 @@ void ClientConnection::handlePollInEvent(int clientFD)
     }
 }
 
-void ClientConnection::addClientInfo(int clientFD, int serverIndex, sockaddr_in clientAddr) {
+void ClientConnection::initClientSocket(int clientFD, int serverIndex, sockaddr_in clientAddr) {
     ConnectionInfo clientInfo;
     time_t currentTime;
     time(&currentTime);
@@ -169,7 +169,7 @@ void ClientConnection::acceptClients(int serverFD, int serverIndex)
         close(clientFD);
         return;
     }
-    addClientInfo(clientFD, serverIndex, clientAddr);
+    initClientSocket(clientFD, serverIndex, clientAddr);
     
     _log.logClientConnection("accepted connection", _connectionInfo[clientFD].clientIP, clientFD);
 }
@@ -211,7 +211,7 @@ void ClientConnection::checkConnectedClientsStatus()
     }
 }
 
-void ClientConnection::initializeServerSockets() {
+void ClientConnection::initServerSocket() {
     for (const auto& server : _ptrServerConnection->_connectedServers) {
         ConnectionInfo serverInfo;
 
@@ -233,7 +233,7 @@ void ClientConnection::initializeServerSockets() {
 
 void ClientConnection::setupClientConnection(std::list<ServerStruct> *serverStruct)
 {
-    initializeServerSockets();
+    initServerSocket();
 
     while (true) {
         std::vector<pollfd> pollfds;

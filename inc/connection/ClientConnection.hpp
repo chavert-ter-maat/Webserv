@@ -50,16 +50,16 @@ public:
 
     void handlePollInEvent(int clientFD);
     void acceptClients(int server_fd, int index);
-    void initializeServerSockets();
+    void initServerSocket();
     void setupClientConnection(std::list<ServerStruct> *serverStruct);
     void removeClientSocket(int clientFD);
     bool isServerSocket(int fd);
     void handlePollOutEvent(int clientFD, std::list<ServerStruct> *serverStruct);
     void handlePollErrorEvent(int clientFD);
-    void addClientInfo(int clientFD, int index, sockaddr_in clientAddr);
+    void initClientSocket(int clientFD, int index, sockaddr_in clientAddr);
     void checkConnectedClientsStatus();
     void receiveData(int clientFD);
-    bool initializeRequest(int clientFD);
+    bool initRequest(int clientFD);
     bool clientHasTimedOut(int clientFD);
     void sendData(int clientFD);
 };
