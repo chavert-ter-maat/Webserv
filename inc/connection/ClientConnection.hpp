@@ -19,7 +19,6 @@
 #include <algorithm>
 
 #define SENDING 0
-#define BUFFSIZE 4096
 
 struct ConnectionInfo {
     int 						clientFD;

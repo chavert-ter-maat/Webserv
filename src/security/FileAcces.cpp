@@ -105,7 +105,23 @@ bool			FileAccess::is_deleteable(std::filesystem::path to_delete)
 	return false;
 }
 
-ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *location_config)
+bool	method_in_location(ConfigContent *current, std::string method)
+{
+	std::list<std::string>	*allowedMethods;
+
+	if ((LocationStruct *)current->childs && !((LocationStruct *)current->childs)->allow_methods.content_list.empty())
+		allowedMethods = &((LocationStruct *)current->childs)->allow_methods.content_list;
+	else
+		return false;
+	for (std::string content : *allowedMethods)
+	{
+		if (!content.compare(method))
+			return true;
+	}
+	return false;
+}
+
+ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *location_config, std::string method)
 {
 	ConfigContent	*current;
 	ConfigContent	*previous_match;
@@ -133,15 +149,16 @@ ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *
 			}
 			else
 			{
-				if (!previous_match || previous_match->content_list.back().length() < loc_conf->length())
+				if (!previous_match || (previous_match->content_list.back().length() < loc_conf->length()
+					&& method_in_location(current, method)))
 					previous_match = current;
 			}
 		}
 		else if (match_type_requested == MATCH_TYPE_POSTFIX)
 		{
 			std::cout << "post+fix" << std::endl;
-			std::cout << *loc_conf << "==" << uri << "_" << uri.find(*loc_conf, (uri.length() - loc_conf->length())) << "=" << uri.length() - loc_conf->length() << std::endl;
-			if (uri.find(*loc_conf, (uri.length() - loc_conf->length())) == uri.length() - loc_conf->length())
+			if (uri.find(*loc_conf, (uri.length() - loc_conf->length())) == uri.length() - loc_conf->length()
+				&& method_in_location(current, method))
 			{
 				previous_match = current;
 				break;
@@ -162,7 +179,10 @@ std::string	FileAccess::swap_out_root(std::string uri, ConfigContent *location_c
 		root = ((LocationStruct *)location_config->childs)->root.content_list.back();
 	root_swapped_path = root;
 	if (!uri.empty())
-		root_swapped_path.append(uri);
+	{
+		if (location_config->content_list.back().length() < uri.length())
+			root_swapped_path.append(uri.substr(location_config->content_list.back().length()));
+	}
 	return (root_swapped_path);
 }
 
@@ -196,7 +216,7 @@ std::string	FileAccess::redirect(int &return_code)
 }
 
 //NEW FUNCTION:
-std::filesystem::path	FileAccess::isFilePermissioned(std::string uri, int &return_code, int port)
+std::filesystem::path	FileAccess::isFilePermissioned(std::string uri, int &return_code, int port, std::string method)
 {
 	std::string		new_uri;
 	ConfigContent	*location_config;
@@ -211,7 +231,7 @@ std::filesystem::path	FileAccess::isFilePermissioned(std::string uri, int &retur
 		return ("/"); //reset uri to new_uri
 	// //find location config. check allowedMethod and if not allowed return
 	location_config = &server->_location;
-	location_config = find_location_config(uri, location_config);
+	location_config = find_location_config(uri, location_config, method);
 	if (location_config && !((LocationStruct *)location_config->childs)->allow_methods.content_list.empty())
 		_currentAllowedMethods = &((LocationStruct *)location_config->childs)->allow_methods.content_list;
 	else
@@ -237,7 +257,7 @@ std::filesystem::path	FileAccess::getErrorPage(int return_code)
 			return (current->content_list.back());
 		current = current->next;
 	}
-	return ("/");
+	return ("");
 }
 
 //check if method is allowed for this specific location, this is fine
