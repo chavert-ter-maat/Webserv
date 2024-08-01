@@ -6,4 +6,4 @@
 
 #define CRLFCRLF "\r\n\r\n"
 
-
+#define BUFFSIZE 4096

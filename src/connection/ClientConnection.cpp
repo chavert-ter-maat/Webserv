@@ -3,15 +3,9 @@
 ClientConnection::ClientConnection() {}
 
 ClientConnection::ClientConnection(std::shared_ptr<ServerConnection> ServerConnection)
-	: _ptrServerConnection(ServerConnection) {}
+	: _ptrServerConnection(ServerConnection), _connectionInfo(), _log(){}
 
-ClientConnection::~ClientConnection()
-{
-	for (auto& client : _connectionInfo) {
-		_log.logClientConnection("connection closed", client.second.clientIP, client.first);
-		close(client.first);
-	}
-}
+ClientConnection::~ClientConnection() {}
 
 void ClientConnection::handlePollErrorEvent(int clientFD) {
 	removeClientSocket(clientFD);
@@ -29,23 +23,22 @@ void ClientConnection::handlePollOutEvent(int clientFD, std::list<ServerStruct> 
 	sendData(clientFD);
 }
 
-bool ClientConnection::initRequest(int clientFD) 
-{
-	auto& client = _connectionInfo[clientFD];
-	time_t currentTime;
-	time(&currentTime);
-	size_t headerEnd = client.receiveStr.find(CRLFCRLF);
+bool ClientConnection::initRequest(int clientFD) {
+    auto& client = _connectionInfo[clientFD];
+    time_t currentTime;
+    time(&currentTime);
+    size_t headerEnd = client.receiveStr.find(CRLFCRLF);
 
-	if (headerEnd != std::string::npos) {
-		client.request = std::make_shared<Request>(client.receiveStr.substr(0, headerEnd + strlen(CRLFCRLF)));
-		if (headerEnd + strlen(CRLFCRLF) < client.receiveStr.length()) {
-			client.request->appendToBody(client.receiveStr.substr(headerEnd + strlen(CRLFCRLF)));
-		}
-		client.receiveStr.clear();
-		client.lastRequestTime = currentTime;
-		return true;
-	} 
-	return false;
+    if (headerEnd != std::string::npos) {
+        client.request = std::make_shared<Request>(client.receiveStr.substr(0, headerEnd + strlen(CRLFCRLF)));
+        if (headerEnd + strlen(CRLFCRLF) < client.receiveStr.length()) {
+            client.request->appendToBody(client.receiveStr.substr(headerEnd + strlen(CRLFCRLF)));
+        }
+        client.receiveStr.clear();
+        client.lastRequestTime = currentTime;
+        return true;
+    } 
+    return false;
 }
 
 bool ClientConnection::clientHasTimedOut(int clientFD) 
@@ -83,27 +76,27 @@ void ClientConnection::receiveData(int clientFD)
 
 void ClientConnection::sendData(int clientFD)
 {
-	auto& client = _connectionInfo[clientFD];
-	int remainingBytes = client.bytesToSend - client.totalBytesSent;
-	int packageSize = std::min(BUFFSIZE, remainingBytes);
+	 ConnectionInfo clientInfo = _connectionInfo[clientFD];
+    int remainingBytes = clientInfo.bytesToSend - clientInfo.totalBytesSent;
+    int packageSize = std::min(BUFFSIZE, remainingBytes);
 
-	ssize_t bytesSent = send(clientFD, 
-							 client.responseStr.c_str() + client.totalBytesSent, packageSize, 0);  
+    ssize_t bytesSent = send(clientFD, 
+                             clientInfo.responseStr.c_str() + clientInfo.totalBytesSent, packageSize, 0);
 	if (bytesSent > 0) {
-		client.totalBytesSent += bytesSent;
-		if (client.totalBytesSent < client.bytesToSend) {
-			client.sendStatus = SENDING;
+		clientInfo.totalBytesSent += bytesSent;
+		if (clientInfo.totalBytesSent < clientInfo.bytesToSend) {
+			clientInfo.sendStatus = SENDING;
 			return;
 		}
 		removeClientSocket(clientFD);
 	}
 	if (bytesSent < 0 && (errno != EAGAIN && errno != EWOULDBLOCK)) {
 		removeClientSocket(clientFD);
-		_log.logClientError("Failed to send data to client: " + std::string(strerror(errno)), client.clientIP, clientFD);
+		_log.logClientError("Failed to send data to client: " + std::string(strerror(errno)), clientInfo.clientIP, clientFD);
 	}
 	else {
 		removeClientSocket(clientFD);
-		_log.logClientConnection("Client disconnected", client.clientIP, clientFD);
+		_log.logClientConnection("Client disconnected", clientInfo.clientIP, clientFD);
 	}
 }
 
