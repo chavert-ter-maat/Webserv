@@ -171,18 +171,36 @@ ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *
 	return (previous_match);
 }
 
+//fack a me
 std::string	FileAccess::swap_out_root(std::string uri, ConfigContent *location_config, std::string root)
 {
 	std::filesystem::path	root_swapped_path;
+	std::filesystem::path	path;
 
+	std::cout << "ROOT SWAPPING" << std::endl;
 	if (location_config->childs && !((LocationStruct *)location_config->childs)->root.content_list.empty())
 		root = ((LocationStruct *)location_config->childs)->root.content_list.back();
 	root_swapped_path = root;
+	std::cout << root << std::endl;
 	if (!uri.empty())
 	{
-		if (location_config->content_list.back().length() < uri.length())
-			root_swapped_path.append(uri.substr(location_config->content_list.back().length()));
+		path = uri;
+		std::cout << location_config->content_list.back().length() << "_" << path.parent_path().string().length() + 1 << "_" << uri.length() << std::endl;
+		if (location_config->content_list.back() != "/" && get_match_type(location_config->content_list.front()) != MATCH_TYPE_POSTFIX
+			&& (location_config->content_list.back().length() <= path.parent_path().string().length() + 1 || path.extension() == ""))
+		{
+			std::cout << path << std::endl;
+			// std::cout << location_config->content_list.back().length() << "_" << uri.length() << std::endl;
+			if (location_config->content_list.back().length() <= uri.length())
+			{
+				std::cout << "appending part:" << uri.substr(location_config->content_list.back().length()) << std::endl;
+				root_swapped_path.append(uri.substr(location_config->content_list.back().length()));
+			}
+		}
+		else
+			root_swapped_path.append(uri);
 	}
+	std::cout << "ROOT SWAPPING DONE:" << root_swapped_path << std::endl;
 	return (root_swapped_path);
 }
 
