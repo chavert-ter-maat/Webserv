@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <vector>
 
-#define BACKLOG 512
+#define BACKLOG 51
 
 struct ServerInfo {
   std::string serverID;

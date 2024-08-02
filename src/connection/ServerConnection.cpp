@@ -16,7 +16,7 @@ void ServerConnection::initServerInfo(ServerStruct &serverStruct, ServerInfo &in
 {
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));
-	// info._config = &serverStruct; 
+	// info._config = &serverStruct;
 	info.serverPort = atoi(it->c_str());
 	info.serverID = serverStruct._id;
 	server_addr.sin_family = AF_INET;
@@ -48,7 +48,7 @@ void ServerConnection::bindServerSocket(ServerInfo &info)
 }
 
 void ServerConnection::listenIncomingConnections(ServerInfo &info) {
-  if (listen(info.serverFD, QUEUESIZE) == -1) {
+  if (listen(info.serverFD, BACKLOG) == -1) {
     close(info.serverFD);
     _log.logServerError("Failed to listen for connection on server", info.serverID, info.serverPort);
   }
