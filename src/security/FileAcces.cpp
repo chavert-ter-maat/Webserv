@@ -42,7 +42,27 @@ bool	find_server_name_in_uri(std::string uri, std::string server_name)
 	return (false);
 }
 
-void	FileAccess::swap_to_right_server_config(std::string uri, int port)
+std::string	remove_server_name(std::string uri, std::string server_name)
+{
+	std::string	new_uri;
+
+	if (server_name.at(0) == '*' && uri.find(server_name.substr(1), (uri.length() - server_name.length())) == uri.length() - server_name.length() + 1)
+		new_uri =  (uri.substr(0, uri.length() - server_name.length() - 1));
+	else if (server_name.at(server_name.length() - 1) == '*' && !uri.find(server_name.substr(0, server_name.length() - 1)))
+		new_uri =  (uri.substr(server_name.length() - 1));
+	else if (!uri.find(server_name))
+		new_uri = (uri.substr(server_name.length() - 1));
+	else
+		new_uri = (uri);
+	// if (new_uri.length() >= 2)
+	// {
+	// 	if (new_uri.find("//"))
+	// 		new_uri = new_uri.substr(1);
+	// }
+	return new_uri;
+}
+
+std::string	FileAccess::swap_to_right_server_config(std::string uri, int port)
 {
 	std::string		port_str;
 	ServerStruct	*prev_match;
@@ -64,11 +84,17 @@ void	FileAccess::swap_to_right_server_config(std::string uri, int port)
 		}
 	}
 	server = prev_match;
-	std::cout << "SELECTED: " << server->_id << std::endl; 
+	std::cout << "SELECTED: " << server->_id << std::endl;
 	_root = server->_root.content_list.back();
 	_currentRoot = _root;
 	_allowedMethods = &server->_allowMethods.content_list;
 	_currentAllowedMethods = _allowedMethods;
+	if (!server->_names.content_list.empty())
+	{
+		std::cout << server->_names.content_list.front() << "_" << server->_names.content_list.front().length() - 1 << std::endl;
+		return (remove_server_name(uri, server->_names.content_list.front()));//uri.substr(server->_names.content_list.front().length() - 1)));
+	}
+	return (uri);
 }
 
 //source: https://www.digitalocean.com/community/tutorials/nginx-location-directive
@@ -242,7 +268,7 @@ std::filesystem::path	FileAccess::isFilePermissioned(std::string uri, int &retur
 	std::filesystem::path	path;
 
 	//find server_name in config and swap to that config.
-	swap_to_right_server_config(uri, port);
+	uri = swap_to_right_server_config(uri, port);
 
 	//check if redirect, if so return redirect.
 	new_uri = redirect(return_code);

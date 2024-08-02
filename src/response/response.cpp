@@ -99,6 +99,7 @@ std::string	Response::get_error_body(int error_code, std::string error_descripti
 		error_body = readFileToBody(error_page);
 	else
 		error_body = standard_error(error_code, error_description);
+	_contentType = "html";
 	return (error_body);
 }
 
