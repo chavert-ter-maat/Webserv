@@ -105,14 +105,14 @@ bool			FileAccess::is_deleteable(std::filesystem::path to_delete)
 	return false;
 }
 
-bool	method_in_location(ConfigContent *current, std::string method)
+bool	method_in_location(ConfigContent *current, ConfigContent *parent, std::string method)
 {
 	std::list<std::string>	*allowedMethods;
 
 	if ((LocationStruct *)current->childs && !((LocationStruct *)current->childs)->allow_methods.content_list.empty())
 		allowedMethods = &((LocationStruct *)current->childs)->allow_methods.content_list;
 	else
-		return false;
+		allowedMethods = &((LocationStruct *)parent->childs)->allow_methods.content_list;// return false;
 	for (std::string content : *allowedMethods)
 	{
 		if (!content.compare(method))
@@ -150,7 +150,7 @@ ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *
 			else
 			{
 				if (!previous_match || (previous_match->content_list.back().length() < loc_conf->length()
-					&& method_in_location(current, method)))
+					&& method_in_location(current, &server->_location, method)))
 					previous_match = current;
 			}
 		}
@@ -158,7 +158,7 @@ ConfigContent	*FileAccess::find_location_config(std::string uri, ConfigContent *
 		{
 			std::cout << "post+fix" << std::endl;
 			if (uri.find(*loc_conf, (uri.length() - loc_conf->length())) == uri.length() - loc_conf->length()
-				&& method_in_location(current, method))
+				&& method_in_location(current, &server->_location, method))
 			{
 				previous_match = current;
 				break;
