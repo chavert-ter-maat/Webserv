@@ -13,6 +13,7 @@ class LocationStruct: public ProtoStruct
 	ConfigContent	_return;
 	ConfigContent	root;
 	ConfigContent	allow_methods;
+	ConfigContent	_limitClientBodySize;
 	LocationStruct(void);
 	LocationStruct(ParserItem *head);
 	LocationStruct(const LocationStruct &to_copy);

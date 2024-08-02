@@ -21,6 +21,7 @@ class ServerStruct: public ProtoStruct
 	ConfigContent	_errorPage; //list
 	ConfigContent	_return; //list
 	ConfigContent	_allowMethods;
+	ConfigContent	_limitClientBodySize;
 
 
 	ServerStruct();

@@ -14,7 +14,7 @@ std::string &add_dir_to_listing(std::string &return_html, char *directory, const
 	if (return_html.back() != '/')
 		return_html += '/';
 	return_html += path;
-	if (return_html.back() != '/') return_html += '/';
+	if (return_html.back() != '/' && return_html.back() != '.') return_html += '/';
 	return_html += directory;
 	return_html += "';\">";
 	return_html += directory;

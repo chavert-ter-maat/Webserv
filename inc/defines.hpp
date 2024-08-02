@@ -11,3 +11,5 @@
 #define READ 0
 
 #define WRITE 1
+
+#define STANDARD__limitClientBodySize 2000000

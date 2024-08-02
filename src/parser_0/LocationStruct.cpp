@@ -15,6 +15,7 @@ LocationStruct::LocationStruct(ParserItem *head)
 	this->getContent("return", this->_return);
 	this->getContent("root", this->root);
 	this->getContent("allow_methods", this->allow_methods);
+	this->getContent("client_max_body_size", this->_limitClientBodySize);
 }
 
 LocationStruct::LocationStruct(const LocationStruct &to_copy)
@@ -32,6 +33,7 @@ LocationStruct	&LocationStruct::operator=(const LocationStruct &to_copy)
 	this->_return = to_copy._return;
 	this->root = to_copy.root;
 	this->allow_methods = to_copy.allow_methods;
+	this->_limitClientBodySize = to_copy._limitClientBodySize;
 	return (*this);
 }
 
@@ -49,4 +51,5 @@ void	LocationStruct::show_self(void)
 	this->_return.show_part("	return:");
 	this->root.show_part("	root:");
 	this->allow_methods.show_part("	allow_methods:");
+	this->_limitClientBodySize.show_part("	limitClientBodySize:");
 }

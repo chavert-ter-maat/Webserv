@@ -22,6 +22,7 @@ ServerStruct::ServerStruct(ParserStruct *parser_struct, int nth_server)
 	this->getContent("error_page", this->_errorPage);
 	this->getContent("return", this->_return);
 	this->getContent("allow_methods", this->_allowMethods);
+	this->getContent("client_max_body_size", this->_limitClientBodySize);
 	//std::cout << std::endl;
 }
 
@@ -43,6 +44,7 @@ ServerStruct	&ServerStruct::operator=(const ServerStruct &to_copy)
 	this->_root = to_copy._root;
 	this->_return = to_copy._return;
 	this->_errorPage = to_copy._errorPage;
+	this->_limitClientBodySize = to_copy._limitClientBodySize;
 	return (*this);
 }
 
@@ -65,6 +67,7 @@ void	ServerStruct::show_self(void)
 	this->_return.show_part("return:");
 	this->_errorPage.show_part("error_page:");
 	this->_allowMethods.show_part("allow_methods:");
+	this->_limitClientBodySize.show_part("limitClientBodySize:");
 }
 
 int	load_in_servers(ParserStruct *PS, std::list<ServerStruct> &server_structs)
