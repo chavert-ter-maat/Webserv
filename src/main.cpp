@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	std::shared_ptr<ServerConnection> SS = std::make_shared<ServerConnection>();
 	ClientConnection CC(SS);
 	std::list<ServerStruct> server_structs;
-	Parser parser("#", "\n", "{", "}", " 	\n", "'", " 	\n", ";");
+	Parser parser;//("#", "\n", "{", "}", " 	\n", "'", " 	\n", ";");
 
 	if (argc != 2)
 		error_exit(1);
