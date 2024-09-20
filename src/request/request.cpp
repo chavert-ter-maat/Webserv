@@ -91,7 +91,7 @@ void	Request::parseRequest()
 
 	_requestPath = trim(_requestPath, "/");
 	if (_requestMethod == "GET")
-		parseUrlArgs(_requestPath);
+		_requestArgs = parseUrlArgs(_requestPath);
 	if (!parseRequestHeaders(requestStream)) {
 		_valid = false;
 		return;
@@ -103,7 +103,7 @@ void	Request::parseRequest()
 	return;
 }
 
-void	Request::parseUrlArgs(const std::string uri)
+std::unordered_map<std::string, std::string>	Request::parseUrlArgs(const std::string uri)
 {
 	size_t pos;
 	std::unordered_map<std::string, std::string> args;
@@ -115,12 +115,13 @@ void	Request::parseUrlArgs(const std::string uri)
 		if (pos + 1)
 		{
 			argStr = uri.substr(pos + 1);
-			splitUrlArgs(argStr);
+			splitUrlArgs(argStr, args);
 		}
 	}
+	return args;
 }
 
-void	Request::splitUrlArgs(std::string argStr)
+void	Request::splitUrlArgs(std::string argStr, std::unordered_map<std::string, std::string> &args)
 {
 	std::string arg;
 	std::istringstream argStream(argStr);
@@ -132,7 +133,7 @@ void	Request::splitUrlArgs(std::string argStr)
 		{
 			std::string key = arg.substr(0, pos);
 			std::string value = arg.substr(pos + 1);
-			_requestArgs[key] = value;
+			args[key] = value;
 		}
 	}
 }

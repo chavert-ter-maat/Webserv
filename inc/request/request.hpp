@@ -35,6 +35,8 @@ public:
 	const std::unordered_map<std::string, std::string> &get_requestArgs() const;
 	void				set_requestStatus(bool status);
 	std::string 		trim(const std::string &str, const std::string &tokens);
+	std::unordered_map<std::string, std::string>	parseUrlArgs(const std::string uri);
+	void				splitUrlArgs(std::string argStr, std::unordered_map<std::string, std::string> &args);
 
 private:
 	std::shared_ptr<Log>	_log;
@@ -53,7 +55,5 @@ private:
 	bool		parseRequestLine(const std::string &line);
 	bool		parseRequestHeaders(std::istringstream &requestStream);
 	std::string	parseRequestBody(const std::string &_rawRequest);
-	void		parseUrlArgs(const std::string uri);
-	void		splitUrlArgs(std::string argStr);
 	bool		checkRequestValidity() const;
 };
