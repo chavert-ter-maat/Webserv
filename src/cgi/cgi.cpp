@@ -59,14 +59,25 @@ CGI::~CGI() {
 
 void CGI::parseCGI()
 {
+	std::unordered_map<std::string, std::string> args;
+
+	if (_request->get_requestMethod() == "POST")
+		_request->splitUrlArgs(_request->get_body(), args);
+	else
+		args = _request->get_requestArgs();
+
 	if (!_interpreter.empty())
-		_cgiArgv.push_back(const_cast<char *>(_interpreter.c_str()));
-	_cgiArgv.push_back(const_cast<char *>(_scriptPath.c_str()));
-	_cgiArgv.push_back(NULL);
+		_cgiArgv.push_back(_interpreter);
+	_cgiArgv.push_back(_scriptPath);
+
+	if (!args.empty()) {
+		for (const auto &it: args)
+			_cgiArgv.push_back(it.second);
+	}
 
 	init_envp();
-	if (!_request->get_requestArgs().empty()) {
-		for (auto it: _request->get_requestArgs())
+	if (!args.empty()) {
+		for (const auto &it: args)
 			add_to_envp(it.first, it.second, "HTTP_");
 	}
 }
@@ -112,14 +123,18 @@ bool CGI::validate_key(std::string key) {
 
 void CGI::executeScript()
 {
-    int 	pipeServertoCGI[2];
-	int		pipeCGItoServer[2];
+    int	pipeServertoCGI[2];
+	int	pipeCGItoServer[2];
 
 	std::vector<char*> envp;
-	for (const auto& var : _cgiEnvp) {
+	for (const auto& var : _cgiEnvp)
 		envp.push_back(const_cast<char*>(var.c_str()));
-	}
 	envp.push_back(nullptr);
+
+	std::vector<char*> argv;
+	for (const auto& it: _cgiArgv)
+		argv.push_back(const_cast<char*>(it.c_str()));
+	argv.push_back(NULL);
 
     if (pipe(pipeServertoCGI) == -1 || pipe(pipeCGItoServer) == -1) {
 		_log->logError("Failed to create pipe");
@@ -146,7 +161,8 @@ void CGI::executeScript()
         dup2(pipeCGItoServer[WRITE], STDOUT_FILENO);
 		close(pipeCGItoServer[WRITE]);
 
-        execve(_cgiArgv.data()[0], _cgiArgv.data(), envp.data());
+        execve(argv.data()[0], argv.data(), envp.data());
+        execve(argv.data()[0], argv.data(), envp.data());
 		_log->logError("Execve error.");
 		_exit(1);
     }

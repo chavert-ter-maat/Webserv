@@ -34,7 +34,7 @@ private:
 	std::shared_ptr<Request>	_request;
 	std::filesystem::path		_scriptPath;
 	std::string					_interpreter;
-	std::vector<char *>			_cgiArgv;
+	std::vector<std::string>			_cgiArgv;
 	std::vector<std::string>	_cgiEnvp;
 	std::string					_result;
 	size_t						_contentLength;
