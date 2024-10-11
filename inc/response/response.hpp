@@ -68,9 +68,9 @@ private:
 
 	Response();
 	void	handleRequest();
-	bool	handleGetRequest();
-	bool	handlePostRequest();
-	bool	handleDeleteRequest();
+	void	handleGetRequest();
+	void	handlePostRequest();
+	void	handleDeleteRequest();
 	void	handle_multipart();
 
 	std::unordered_map<std::string, std::string>	get_args(std::string requestBody,

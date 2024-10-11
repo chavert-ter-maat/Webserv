@@ -121,10 +121,9 @@ void	Response::handleRequest()
 	}
 }
 
-bool	Response::handleGetRequest()
+void	Response::handleGetRequest()
 {
 	std::stringstream buffer;
-
 	int status_code;
 
 	status_code = 0;
@@ -137,7 +136,7 @@ bool	Response::handleGetRequest()
 			_body = get_error_body(static_cast<int>(statusCode::OK), "Unsupported Media Type");
 			buildResponse(static_cast<int>(statusCode::UNSUPPORTED_MEDIA_TYPE),
 				  "Unsupported Media Type", false);
-			return false;
+			return;
 		}
 		_contentType = it->second;
 		if (interpreters.find(_finalPath.extension()) == interpreters.end())
@@ -147,7 +146,7 @@ bool	Response::handleGetRequest()
 			{
 				_body = get_error_body(404, "File not found.");
 				buildResponse(static_cast<int>(statusCode::NOT_FOUND), "Not Found", false);
-				return true;
+				return;
 			}
 		}
 		else
@@ -158,7 +157,7 @@ bool	Response::handleGetRequest()
 				_contentLength = _cgi->get_contentLength();
 				buildResponse(static_cast<int>(statusCode::OK), "OK", true);
 			}
-			return true;
+			return;
 		}
 	}
 	else
@@ -170,10 +169,10 @@ bool	Response::handleGetRequest()
 		_body = get_error_body(404, "File not found.");
 		buildResponse(status_code, "Not Found", false);
 	}
-	return true;
+	return;
 }
 
-bool	Response::handlePostRequest()
+void	Response::handlePostRequest()
 {
 	std::string requestBody = _request->get_body();
 	std::string requestContentType = _request->get_contentType();
@@ -191,23 +190,23 @@ bool	Response::handlePostRequest()
 				_contentLength = _cgi->get_contentLength();
 				buildResponse(static_cast<int>(statusCode::OK), "OK", isCGI);
 			}
-			return true;
+			return;
 		}
 		else {
 			_body = get_error_body(static_cast<int>(statusCode::NO_CONTENT), "No Content.");
 			buildResponse(static_cast<int>(statusCode::NO_CONTENT), "No Content", "");
-			return true;
+			return;
 		}
 	}
 	if (requestContentType == "multipart/form-data") {
 		handle_multipart();
-		return true;
+		return;
 	}
 	buildResponse(static_cast<int>(statusCode::OK), "OK", isCGI);
-	return true;
+	return;
 }
 
-bool	Response::handleDeleteRequest()
+void	Response::handleDeleteRequest()
 {
 	if (_fileAccess.is_deleteable(_finalPath))
 	{
@@ -215,12 +214,12 @@ bool	Response::handleDeleteRequest()
 		{
 			_body = get_error_body(static_cast<int>(204), "Delete.");
 			buildResponse(static_cast<int>(204), "Delete.", "");
-			return true;
+			return;
 		}
 	}
 	_body = get_error_body(static_cast<int>(204), "Delete.");
 	buildResponse(static_cast<int>(204), "Delete.", "");
-	return false;
+	return;
 }
 
 const std::string	Response::readFileToBody(std::filesystem::path path)
@@ -386,7 +385,8 @@ const std::string	&Response::get_contentType() const { return _contentType; }
 bool 				Response::isComplete() const { return _complete; }
 const std::shared_ptr<CGI>	Response::get_cgi() {return _cgi;};
 
-void Response::printResponse() {
+void Response::printResponse()
+{
 	std::cout << MSG_BORDER << "[Response]" << MSG_BORDER << std::endl;
 	std::cout << _responseString << std::endl;
 }
