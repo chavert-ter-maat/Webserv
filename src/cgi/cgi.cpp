@@ -243,22 +243,31 @@ int	CGI::writeCGIfd()
 	to_write = _request->get_body().length() - _bytesWritten;
 	if (to_write > BUFFSIZE)
 		to_write = BUFFSIZE;
-	ssize_t bytes_written = write(_pollfdWrite.fd, _request->get_body().data() + _bytesWritten, to_write);
-	_bytesWritten += to_write;
-	if (_bytesWritten == _request->get_body().length())
+
+	ssize_t	bytes_written = write(
+		_pollfdWrite.fd,
+		_request->get_body().data() + _bytesWritten,
+		to_write
+	);
+
+	if (bytes_written < 0)
 	{
-		_pollfdWrite.events = 0;
-		close(_pollfdWrite.fd);
-		_pollfdWrite.fd = -1;
-		return (1);
-	}
-	if (bytes_written < 0) {
 		close(_pollfdWrite.fd);
 		kill(_pid, SIGKILL);
 		_pollfdRead.fd = -1;
 		_pollfdWrite.fd = -1;
 		_log->logError("Failed to write to pipe");
 		return (2);
+	}
+
+	_bytesWritten += static_cast<size_t>(bytes_written);
+
+	if (_bytesWritten == _request->get_body().length())
+	{
+		_pollfdWrite.events = 0;
+		close(_pollfdWrite.fd);
+		_pollfdWrite.fd = -1;
+		return (1);
 	}
 	return (0);
 }
